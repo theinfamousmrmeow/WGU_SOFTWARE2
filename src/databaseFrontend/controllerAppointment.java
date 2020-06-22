@@ -11,20 +11,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class controllerAppointment {
-
-    enum screenStates{
-        add,
-        update
-    }
+public class controllerAppointment extends controller {
 
     public static List<DayOfWeek> nonWorkDays = new ArrayList<DayOfWeek>();
 
 
     public static LocalTime businessHoursStart = LocalTime.of(9,0);
     public static LocalTime businessHoursEnd = LocalTime.of(17,0);
+
     public static screenStates screenState=screenStates.add;
     public static int appointmentId;
+    public static Appointment currentAppointment;
 
     @FXML
     Button btnTitle;
@@ -59,14 +56,13 @@ public class controllerAppointment {
 
     static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-
-
     public void initialize() {
         nonWorkDays.add(DayOfWeek.SATURDAY);
         nonWorkDays.add(DayOfWeek.SUNDAY);
         populateTimes(cbTimeStart);
         populateTimes(cbTimeEnd);
         populateCustomers(cbCustomerID);
+
         if (screenState==screenStates.add){
             btnSave.setText("Add");
             lblHeading.setText("Add Appointment");
@@ -90,12 +86,12 @@ public class controllerAppointment {
 
     public static void converToDate(String str){
         LocalTime lt = LocalTime.parse(str);
-
     }
+
     public static void populateCustomers(ComboBox<String> cbCustomerID){
         //TODO:  Get all customers
         Connection conn = connectionManager.openConnection();
-        ResultSet rs = connectionManager.sendStatement(conn,"SELECT * FROM customer");
+        ResultSet rs = connectionManager.sendStatement("SELECT * FROM customer");
         try {
             while (rs.next()) {
                 String currentCustomerName = rs.getString("customerName");
@@ -130,6 +126,7 @@ public class controllerAppointment {
             errorAlert.setContentText("Business hours are from "+businessHoursStart.toString() +" to " +businessHoursEnd+", Monday - Friday");
             errorAlert.showAndWait();
         } else {
+            //Passed input validation.
             Timestamp startTimeDate = Timestamp.valueOf(LocalDateTime.of(dpStart.getValue(), startTime));
             Timestamp endTimeDate = Timestamp.valueOf(LocalDateTime.of(dpEnd.getValue(), getTimeOfComboBox(cbTimeEnd)));
             if (screenState == screenStates.add) {
@@ -139,6 +136,13 @@ public class controllerAppointment {
                 //Modify currently selected one.
                 connectionManager.updateAppointment(appointmentId, customerId, title, description, "", "", type, "", startTimeDate, endTimeDate);
             }
+            //Back out
+            backToMain();
         }
     }
+
+    public void backToMain(){
+        showSubSceneCommon("formCalendar.fxml", screenStates.add,btnCancel);
+    }
+
 }

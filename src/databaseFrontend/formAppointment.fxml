@@ -17,7 +17,7 @@
       <ComboBox fx:id="cbCustomerID" layoutX="120.0" layoutY="175.0" prefWidth="150.0" />
       <Label layoutX="56.0" layoutY="179.0" text="Customer" />
       <Button fx:id="btnSave" layoutX="398.0" layoutY="361.0" mnemonicParsing="false" onAction="#addOrUpdateAppointment" prefWidth="52.0" text="Save" />
-      <Button fx:id="btnCancel" layoutX="479.0" layoutY="361.0" mnemonicParsing="false" text="Cancel" />
+      <Button fx:id="btnCancel" layoutX="479.0" layoutY="361.0" mnemonicParsing="false" onAction="#backToMain" text="Cancel" />
       <Label fx:id="lblHeading" layoutX="56.0" layoutY="20.0" prefHeight="48.0" prefWidth="293.0" text="Add Appointment">
          <font>
             <Font name="System Bold" size="24.0" />

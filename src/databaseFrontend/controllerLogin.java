@@ -8,18 +8,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import com.mysql.cj.jdbc.Driver;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.sql.*;
 
+public class controllerLogin extends controller{
 
-import java.sql.DriverManager;
-import java.time.Instant;
-
-public class controllerLogin {
+    public static final boolean BYPASS_LOGIN = false;
 
     @FXML
     private Label lblUsername;
@@ -48,40 +44,50 @@ public class controllerLogin {
 
 
     public boolean checkCredentials(String givenUsername, String givenPassword){
-        try {
-            Connection conn = connectionManager.openConnection();
-            ResultSet rs = connectionManager.sendStatement(conn,"SELECT userId, userName, active, password FROM user");
-            //Check the stack until we find one
-            while(rs.next()){
-                String currentUsername = rs.getString("userName");
-                int currentUserId = rs.getInt("userId");
-                Boolean isActive = rs.getBoolean("active");
-                String currentPassword = rs.getString("password");
 
-                if (givenUsername.equals(currentUsername) && givenPassword.equals(currentPassword)){
-                    currentLogin.setUserName(currentUsername);
-                    currentLogin.setUserId(currentUserId);
-                    return true;
+        /**
+         * WGU server kept going down on me, use this macro to bypass
+         */
+        if (BYPASS_LOGIN){
+            currentLogin.setUserName("test");
+            currentLogin.setUserId(1);
+            return true;
+        }
+        else {
+            try {
+
+                ResultSet rs = connectionManager.sendStatement("SELECT userId, userName, active, password FROM user");
+                //Check the stack until we find one
+                while (rs.next()) {
+                    String currentUsername = rs.getString("userName");
+                    int currentUserId = rs.getInt("userId");
+                    Boolean isActive = rs.getBoolean("active");
+                    String currentPassword = rs.getString("password");
+
+                    if (givenUsername.equals(currentUsername) && givenPassword.equals(currentPassword)) {
+                        currentLogin.setUserName(currentUsername);
+                        currentLogin.setUserId(currentUserId);
+                        return true;
+                    } else {
+                        //Keep looking, do nothing
+                    }
                 }
-                else {
-                    //Keep looking, do nothing
-                }
+                rs.close();
+                connectionManager.clear();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            rs.close();
-            connectionManager.clear();
+            return false;
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return false;
     }
 
     public void setLabels(String language){
+        System.out.println(language);
         switch (language){
             case "de":
-                lblUsername.setText("DAS USER");
-                lblPassword.setText("DAS PASSVERD");
-                btnSubmit.setText("SSUBMITTEN");
+                lblUsername.setText("Nutzername");
+                lblPassword.setText("Passwort");
+                btnSubmit.setText("einreichen");
                 break;
             default:
                 lblUsername.setText("Username");
@@ -104,7 +110,7 @@ public class controllerLogin {
             //TODO:  Record successful login with timestamp in a rolling log file.
             //TODO:  Check to see if there's an appointment for this user in the next 15 minutes.
 
-            showSubSceneCommon("formAppointment.fxml",controller.ScreenStates.add);
+            showSubSceneCommon("formCalendar.fxml", screenStates.add,btnSubmit);
 
         }
         else {
@@ -118,8 +124,8 @@ public class controllerLogin {
         Alert errorAlert = new Alert(Alert.AlertType.ERROR);
         switch (language) {
             case "de":
-                errorAlert.setHeaderText("DAS FAILURE");
-                errorAlert.setContentText("DAS PASSWERD IST SCHEISSE");
+                errorAlert.setHeaderText("Einloggen fehlgeschlagen");
+                errorAlert.setContentText("Kombination aus Benutzername und Passwort stimmte nicht mit Datensätzen in der Datenbank überein.");
                 break;
             default:
             errorAlert.setHeaderText("Failed to Log In");
@@ -128,13 +134,16 @@ public class controllerLogin {
         }
         errorAlert.showAndWait();
     }
-    public void showSubSceneCommon(String newScreenFXML, controller.ScreenStates state){
+
+
+
+    public void showSubSceneCommon(String newScreenFXML, screenStates state){
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(newScreenFXML));
         try {
             Parent root1 = (Parent) fxmlLoader.load();
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initStyle(StageStyle.UNDECORATED);
+            //stage.initStyle(StageStyle.UNDECORATED);
             //stage.setTitle("ABC");
             stage.setScene(new Scene(root1));
             stage.show();

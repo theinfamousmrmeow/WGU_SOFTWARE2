@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="databaseFrontend.controllerCustomer">
+   <children>
+      <ButtonBar layoutX="371.0" layoutY="346.0" prefHeight="40.0" prefWidth="200.0">
+        <buttons>
+            <Button fx:id="btnSave" mnemonicParsing="false" onAction="#addCustomer" text="Save" />
+          <Button fx:id="btnExit" mnemonicParsing="false" onAction="#backToMain" text="Cancel" />
+        </buttons>
+      </ButtonBar>
+      <TextField fx:id="tfName" layoutX="76.0" layoutY="61.0" />
+      <TextField fx:id="tfPhone" layoutX="76.0" layoutY="117.0" />
+      <ComboBox layoutX="76.0" layoutY="175.0" prefWidth="150.0" />
+      <Label fx:id="lblTitle" layoutX="76.0" layoutY="14.0" text="Label">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="38.0" layoutY="65.0" text="Name" />
+      <Label layoutX="36.0" layoutY="121.0" text="Phone" />
+      <Label layoutX="29.0" layoutY="179.0" prefHeight="17.0" prefWidth="49.0" text="Address" />
+   </children>
+</AnchorPane>

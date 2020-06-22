@@ -12,6 +12,8 @@ public class connectionManager {
     public static Statement lastStatement;
     public static Connection currentConnection=null;
 
+
+
     /**
      * Don't want to bother with managing connections so make this guy do it instead.
      * @return
@@ -40,9 +42,7 @@ public class connectionManager {
             }
             return null;
         }
-
         return currentConnection;
-
     }
 
     public static void closeConnection(){
@@ -68,23 +68,61 @@ public class connectionManager {
 
     public static void addCustomer(int customerId,String name,int addressId, boolean active){
         Connection conn = openConnection();
-        connectionManager.sendStatement(conn,"INSERT INTO customer(customerId,customerName,addressId,active) VALUES ("+customerId+","+name+","+addressId+","+active+")");
+        connectionManager.sendStatement("INSERT INTO customer(customerId,customerName,addressId,active) VALUES ("+customerId+","+name+","+addressId+","+active+")");
         connectionManager.clear();
     }
 
+    public static void addCustomer(customer c){
+        addCustomer(c.getCustomerId(),c.getCustomerName(),c.getAddressId(),c.isActive(),c.getCreateDate(),c.getCreatedBy(),c.getLastUpdate(),c.getLastUpdateBy());
+    }
+
+    public static void addCustomer(int customerId,String customerName, int addressId,boolean active, Timestamp createDate, String createdBy, Timestamp lastUpdate, String lastUpdateBy){
+        String sep = "\",";
+        int _active = active ? 1:0;
+        connectionManager.sendUpdate("INSERT INTO customer(customerName,addressId,active,createDate,createdBy,lastUpdate,lastUpdateBy) " +
+                "VALUES (\""+customerName+"\",\""+addressId+"\",\""+_active+"\",\""+createDate+"\",\""+ createdBy+"\",\"" +lastUpdate+"\",\""+lastUpdateBy+"\")");
+        connectionManager.clear();
+    }
+
+    public static void updateCustomer(int customerId,String customerName, int addressId,boolean active, Timestamp createDate, String createdBy, Timestamp lastUpdate, String lastUpdateBy){
+        int _active = active ? 1:0;
+        connectionManager.sendUpdate("UPDATE customer SET customerName=" + customerName
+                        +", addressId ="+addressId
+                        +", active ="+_active
+                        +", createDate ="+wrap(createDate)
+                        +", createdBy ="+wrap(createdBy)
+                        +", lastUpdate ="+wrap(lastUpdate)
+                        +", lastUpdateBy ="+wrap(lastUpdateBy)
+                        +" WHERE customerId ="+customerId);
+    }
+
+    public static void deleteCustomer(int customerId){
+        connectionManager.sendUpdate("DELETE FROM appointment WHERE customerId="+customerId);
+        connectionManager.sendUpdate("DELETE FROM customer WHERE customerId="+customerId);
+    }
+
+    public static void deleteFromWhere(String from, String where){
+        connectionManager.sendUpdate("DELETE FROM "+from +" WHERE "+where);
+    }
 
     public static void addAppointment(int customerId,String title, String description,String location, String contact, String type, String url, Timestamp start, Timestamp end){
-        String sep = "\",";
+
         Timestamp now = Timestamp.from(Instant.now());
         Connection conn = openConnection();
-        connectionManager.sendUpdate(conn,"INSERT INTO appointment(customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdate,lastUpdateBy) " +
+        connectionManager.sendUpdate("INSERT INTO appointment(customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdate,lastUpdateBy) " +
                 "VALUES ("+customerId+",\""+currentLogin.getUserId()+"\",\""+title+"\",\""+description+"\",\""+location+"\",\""+ contact+"\",\"" +type+"\",\""+url+"\",\""+start+"\",\""+end+"\",\""+now+"\",\""+currentLogin.getUserName()+"\",\""+now+"\",\""+currentLogin.getUserName()+"\")");
+        connectionManager.clear();
+    }
+
+    public static void deleteAppointment(int appointmentId){
+        Connection conn = openConnection();
+        connectionManager.sendUpdate("DELETE FROM appointment WHERE appointmentId="+appointmentId);
         connectionManager.clear();
     }
 
     public static void updateAppointment(int appointmentId, int customerId,String title, String description,String location, String contact, String type, String url, Timestamp start, Timestamp end){
         Connection conn = openConnection();
-        connectionManager.sendUpdate(conn,"UPDATE appointment SET customerId=" + customerId
+        connectionManager.sendUpdate("UPDATE appointment SET customerId=" + customerId
                 +", title ="+wrap(title)
                 +", description ="+wrap(description)
                 +", location ="+wrap(location)
@@ -99,13 +137,54 @@ public class connectionManager {
         connectionManager.clear();
     }
 
-    public static void addAddress(int customerId,String name,int addressId, boolean active){
-
+    public static int getCountryId(String country){
+        ResultSet rs = sendStatement("SELECT countryId FROM country WHERE country = "+country);
+        try {
+            if (rs.next()) {
+                return rs.getInt("countryId");
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
     }
-    public static ResultSet sendStatement(Connection conn,String sql){
+
+    public static int getCityId(String city){
+        ResultSet rs = sendStatement("SELECT cityId FROM city WHERE city = "+city);
+        try {
+            if (rs.next()) {
+                return rs.getInt("cityId");
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static void addAddress(String address, String address2, int cityId, String postalCode, String phone){
+
+        Timestamp now = Timestamp.from(Instant.now());
+        Connection conn = openConnection();
+        connectionManager.sendUpdate("INSERT INTO address(address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) " +
+                "VALUES ("+address+",\""
+                +address2+"\",\""
+                +cityId+"\",\""
+                +postalCode+"\",\""
+                +phone+"\",\""
+                +now+"\",\""
+                +currentLogin.getUserName()+"\",\""
+                +now+"\",\""
+                +currentLogin.getUserName()+"\")");
+        connectionManager.clear();
+    }
+
+    public static ResultSet sendStatement(String sql){
+        openConnection();
         System.out.println("Creating statement...");
         try {
-            lastStatement = conn.createStatement();
+            lastStatement = currentConnection.createStatement();
             ResultSet rs = lastStatement.executeQuery(sql);
             System.out.println(rs.toString());
             return rs;
@@ -116,10 +195,11 @@ public class connectionManager {
         return null;
     }
 
-    public static int sendUpdate(Connection conn,String sql){
+    public static int sendUpdate(String sql){
+        openConnection();
         System.out.println(sql);
         try {
-            lastStatement = conn.createStatement();
+            lastStatement = currentConnection.createStatement();
             int result = lastStatement.executeUpdate(sql);
             System.out.println(result);
             return result;
