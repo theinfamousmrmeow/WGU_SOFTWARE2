@@ -1,5 +1,7 @@
 package databaseFrontend;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,6 +14,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class controllerLogin extends controller{
 
@@ -34,6 +38,7 @@ public class controllerLogin extends controller{
 
     @FXML
     public void initialize() {
+
         language = System.getProperty("user.language");
         setLabels(language);
         //currentLogin.setUserId(1);
@@ -67,6 +72,7 @@ public class controllerLogin extends controller{
                     if (givenUsername.equals(currentUsername) && givenPassword.equals(currentPassword)) {
                         currentLogin.setUserName(currentUsername);
                         currentLogin.setUserId(currentUserId);
+
                         return true;
                     } else {
                         //Keep looking, do nothing
@@ -74,11 +80,30 @@ public class controllerLogin extends controller{
                 }
                 rs.close();
                 connectionManager.clear();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return false;
         }
+    }
+
+    public Appointment checkForAlerts(int userId){
+        ObservableList<Appointment> apptLsit= connectionManager.getAllAppointmentsForUser(userId);
+        ObservableList<Appointment> upcomingApptList= FXCollections.observableArrayList();
+        if (apptLsit.size()>0){
+            apptLsit.forEach(app -> {
+                //If an appointment starts within the next 15 minutes!
+                if (LocalDateTime.now().plusMinutes(15).plusSeconds(1).isAfter(connectionManager.UTCTimestampToLocalDateTime(app.getStart()))){
+                    upcomingApptList.add(app);
+                }
+            });
+        }
+        //Could be more than one, but the brief only says we have to alert about "a" appointment....
+        if (upcomingApptList.size()>0){
+            return upcomingApptList.get(0);
+        }
+        return null;
     }
 
     public void setLabels(String language){
@@ -104,6 +129,17 @@ public class controllerLogin extends controller{
 
         //Send them over;
         if (checkCredentials(user,password)){
+
+
+            //Check for alerts
+            Appointment upcomingAppt = checkForAlerts(currentLogin.getUserId());
+            if (upcomingAppt!=null){
+                Alert errorAlert = new Alert(Alert.AlertType.INFORMATION);
+                errorAlert.setHeaderText("Upcoming Appointment");
+                errorAlert.setContentText("You have an appointment at "+upcomingAppt.getStart()+"!");
+                errorAlert.showAndWait();
+            }
+
             logger.appendToLog(user+" logged in successfully.");
 
             //Launch the next screen.
@@ -158,6 +194,8 @@ public class controllerLogin extends controller{
         Stage stage = (Stage) btnExit.getScene().getWindow();
         stage.close();
     }
+
+
 
 }
 

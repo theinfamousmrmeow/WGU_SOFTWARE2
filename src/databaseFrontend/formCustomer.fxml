@@ -2,30 +2,36 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="databaseFrontend.controllerCustomer">
+<AnchorPane prefHeight="408.0" prefWidth="256.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="databaseFrontend.controllerCustomer">
    <children>
-      <ButtonBar layoutX="371.0" layoutY="346.0" prefHeight="40.0" prefWidth="200.0">
+      <ButtonBar layoutX="28.0" layoutY="345.0" prefHeight="40.0" prefWidth="200.0">
         <buttons>
             <Button fx:id="btnSave" mnemonicParsing="false" onAction="#addCustomer" text="Save" />
           <Button fx:id="btnExit" mnemonicParsing="false" onAction="#backToMain" text="Cancel" />
         </buttons>
       </ButtonBar>
       <TextField fx:id="tfName" layoutX="76.0" layoutY="61.0" />
-      <TextField fx:id="tfPhone" layoutX="76.0" layoutY="117.0" />
-      <ComboBox layoutX="76.0" layoutY="175.0" prefWidth="150.0" />
-      <Label fx:id="lblTitle" layoutX="76.0" layoutY="14.0" text="Label">
+      <Label fx:id="lblTitle" layoutX="76.0" layoutY="14.0" text="New Customer">
          <font>
             <Font size="24.0" />
          </font>
       </Label>
       <Label layoutX="38.0" layoutY="65.0" text="Name" />
-      <Label layoutX="36.0" layoutY="121.0" text="Phone" />
-      <Label layoutX="29.0" layoutY="179.0" prefHeight="17.0" prefWidth="49.0" text="Address" />
+      <Label layoutX="30.0" layoutY="105.0" prefHeight="17.0" prefWidth="49.0" text="Address" />
+      <TextField fx:id="tfAddress" layoutX="78.0" layoutY="101.0" />
+      <TextField fx:id="tfAddress2" layoutX="78.0" layoutY="139.0" />
+      <TextField fx:id="tfCity" layoutX="77.0" layoutY="178.0" />
+      <TextField fx:id="tfCountry" layoutX="77.0" layoutY="220.0" />
+      <Label layoutX="30.0" layoutY="182.0" prefHeight="17.0" prefWidth="49.0" text="City" />
+      <Label layoutX="30.0" layoutY="224.0" prefHeight="17.0" prefWidth="49.0" text="Country" />
+      <TextField fx:id="tfPostalCode" layoutX="77.0" layoutY="254.0" />
+      <Label layoutX="30.0" layoutY="258.0" prefHeight="17.0" prefWidth="49.0" text="PostalCode" />
+      <TextField fx:id="tfPhone" layoutX="78.0" layoutY="291.0" />
+      <Label layoutX="30.0" layoutY="295.0" text="Phone" />
    </children>
 </AnchorPane>

@@ -12,6 +12,9 @@ public class customer {
     private String createdBy;
     private Timestamp lastUpdate;
     private String lastUpdateBy;
+    private Address address;
+    private String phone;
+    private String textAddress;
 
     public customer(int customerId, String customerName, int addressId, boolean active, Timestamp createDate, String createdBy, Timestamp lastUpdate, String lastUpdateBy) {
         this.customerId = customerId;
@@ -22,10 +25,19 @@ public class customer {
         this.createdBy = createdBy;
         this.lastUpdate = lastUpdate;
         this.lastUpdateBy = lastUpdateBy;
+        this.address = connectionManager.getAddress(addressId);
     }
 
     public int getCustomerId() {
         return customerId;
+    }
+
+    public String getPhone(){
+        return address.getPhone();
+    }
+
+    public String getTextAddress(){
+        return address.getAddress();
     }
 
     public void setCustomerId(int customerId) {
@@ -99,5 +111,6 @@ public class customer {
     public void update(){
         connectionManager.updateCustomer(customerId,customerName,addressId,active,createDate,createdBy,lastUpdate,lastUpdateBy);
     }
+
 
 }

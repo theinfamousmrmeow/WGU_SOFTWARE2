@@ -12,6 +12,39 @@
 
 <TabPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="databaseFrontend.controllerCalendar">
    <tabs>
+      <Tab closable="false" text="Appointments">
+         <content>
+            <AnchorPane prefHeight="419.0" prefWidth="732.0">
+               <children>
+                  <TableView fx:id="tvCalendar" layoutX="39.0" layoutY="46.0" prefHeight="291.0" prefWidth="636.0">
+                    <columns>
+                      <TableColumn fx:id="tcAppointmentId" prefWidth="34.0" text="ID" />
+                        <TableColumn fx:id="tcStartDate" prefWidth="145.0" text="Start" />
+                        <TableColumn fx:id="tcEndDate" prefWidth="131.0" text="End" />
+                        <TableColumn fx:id="tcCalendarCustomerId" prefWidth="77.0" text="Customer" />
+                        <TableColumn fx:id="tcType" prefWidth="137.0" text="Type" />
+                    </columns>
+                  </TableView>
+                  <HBox layoutX="136.0" layoutY="14.0" prefHeight="25.0" prefWidth="291.0" />
+                  <ButtonBar layoutX="14.0" layoutY="372.0" prefHeight="27.0" prefWidth="422.0">
+                    <buttons>
+                        <Button fx:id="btnApptNew" mnemonicParsing="false" onAction="#createNewAppointment" text="New" />
+                        <Button fx:id="btnApptUpdate" mnemonicParsing="false" onAction="#modifyAppointment" text="Edit" />
+                        <Button fx:id="btnApptDelete" mnemonicParsing="false" onAction="#deleteAppointment" text="Delete" />
+                        <Button fx:id="btnExit" mnemonicParsing="false" prefHeight="24.0" prefWidth="143.0" text="Exit" />
+                    </buttons>
+                  </ButtonBar>
+                  <ButtonBar layoutX="410.0" layoutY="7.0" prefHeight="40.0" prefWidth="200.0">
+                     <buttons>
+                        <RadioButton fx:id="rbWeekly" mnemonicParsing="false" onAction="#filterWeekly" text="Weekly" />
+                        <RadioButton fx:id="rbMonthly" mnemonicParsing="false" onAction="#filterMonthly" text="Monthly" />
+                        <RadioButton fx:id="rbAll" mnemonicParsing="false" onAction="#filterAll" text="All" />
+                     </buttons>
+                  </ButtonBar>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
       <Tab closable="false" text="Customers">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="419.0" prefWidth="663.0">
@@ -19,7 +52,7 @@
                   <ButtonBar layoutX="14.0" layoutY="365.0" prefHeight="40.0" prefWidth="200.0">
                     <buttons>
                       <Button fx:id="btnCustomerNew" mnemonicParsing="false" onAction="#createNewCustomer" text="New" />
-                        <Button fx:id="btnCustomerUpdate" mnemonicParsing="false" onAction="#modifyCustomer" text="Update" />
+                        <Button fx:id="btnCustomerUpdate" mnemonicParsing="false" onAction="#modifyCustomer" text="Edit" />
                         <Button fx:id="btnCustomerDelete" mnemonicParsing="false" onAction="#deleteCustomer" text="Delete" />
                     </buttons>
                   </ButtonBar>
@@ -35,44 +68,31 @@
             </AnchorPane>
         </content>
       </Tab>
-      <Tab closable="false" text="Appointments">
-         <content>
-            <AnchorPane prefHeight="419.0" prefWidth="732.0">
+      <Tab closable="false" text="Users">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <TableView fx:id="tvCalendar" layoutX="39.0" layoutY="46.0" prefHeight="291.0" prefWidth="636.0">
+                  <TableView fx:id="tvUsers" layoutX="47.0" layoutY="39.0" prefHeight="313.0" prefWidth="389.0">
                     <columns>
-                      <TableColumn fx:id="tcAppointmentId" prefWidth="75.0" text="ID" />
-                      <TableColumn prefWidth="75.0" text="Date" />
-                        <TableColumn fx:id="tcStartDate" prefWidth="75.0" text="Start" />
-                        <TableColumn fx:id="tcEndDate" prefWidth="75.0" text="End" />
-                        <TableColumn fx:id="tcCalendarCustomerId" prefWidth="75.0" text="Customer" />
-                        <TableColumn fx:id="tcType" prefWidth="75.0" text="Type" />
+                      <TableColumn fx:id="tcUserId" prefWidth="121.0" text="ID" />
+                      <TableColumn fx:id="tcUserName" prefWidth="134.0" text="User" />
                     </columns>
                   </TableView>
-                  <HBox layoutX="136.0" layoutY="14.0" prefHeight="25.0" prefWidth="291.0" />
-                  <ButtonBar layoutX="14.0" layoutY="372.0" prefHeight="27.0" prefWidth="422.0">
+                  <ButtonBar layoutX="50.0" layoutY="352.0" prefHeight="40.0" prefWidth="387.0">
                     <buttons>
-                        <Button fx:id="btnApptUpdate" mnemonicParsing="false" onAction="#modifyAppointment" text="Update" />
-                        <Button fx:id="btnApptNew" mnemonicParsing="false" onAction="#createNewAppointment" text="New" />
-                        <Button fx:id="btnApptDelete" mnemonicParsing="false" onAction="#deleteAppointment" text="Delete" />
-                        <Button fx:id="btnExit" mnemonicParsing="false" prefHeight="24.0" prefWidth="143.0" text="Exit" />
+                      <Button mnemonicParsing="false" onAction="#createNewUser" text="New" />
+                        <Button mnemonicParsing="false" onAction="#modifyUser" text="Edit" />
+                        <Button mnemonicParsing="false" onAction="#deleteUser" text="Delete" />
                     </buttons>
                   </ButtonBar>
-                  <ButtonBar layoutX="410.0" layoutY="7.0" prefHeight="40.0" prefWidth="200.0">
-                     <buttons>
-                        <RadioButton fx:id="rbWeekly" mnemonicParsing="false" text="Weekly" />
-                        <RadioButton fx:id="rbAll" mnemonicParsing="false" text="All" />
-                        <RadioButton fx:id="rbMonthly" mnemonicParsing="false" text="Monthly" />
-                     </buttons>
-                  </ButtonBar>
-               </children>
-            </AnchorPane>
-         </content>
+                  <Button layoutX="653.0" layoutY="360.0" mnemonicParsing="false" onAction="#logout" text="Logout" />
+               </children></AnchorPane>
+        </content>
       </Tab>
       <Tab closable="false" text="Reports">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-        </content>
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+         </content>
       </Tab>
    </tabs>
 </TabPane>

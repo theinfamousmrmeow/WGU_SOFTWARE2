@@ -12,7 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.*;
 
 public class controllerCalendar extends controller {
 
@@ -21,7 +21,7 @@ public class controllerCalendar extends controller {
     @FXML
     private RadioButton rbMonthly;
     @FXML
-    static RadioButton rbAll;
+    private  RadioButton rbAll;
     @FXML
     private  Button btnExit;
     @FXML
@@ -57,6 +57,13 @@ public class controllerCalendar extends controller {
     @FXML
     private TableColumn tcCalendarCustomerId;
 
+    @FXML
+    private TableView tvUsers;
+    @FXML
+    private TableColumn tcUserId;
+    @FXML
+    private TableColumn tcUserName;
+
 
     @FXML
     private TableColumn tcCustomerCustomerId;
@@ -79,55 +86,96 @@ public class controllerCalendar extends controller {
         tcType.setCellValueFactory(new PropertyValueFactory<>("type"));
         tcStartDate.setCellValueFactory(new PropertyValueFactory<>("start"));
         tcEndDate.setCellValueFactory(new PropertyValueFactory<>("end"));
+        tcCustomerPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
+
 
         tcCustomerCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
         tcCustomerCustomerName.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         //tcCustomerCustomerPhone.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        tcCustomerAddressId.setCellValueFactory(new PropertyValueFactory<>("addressId"));
+        //tcCustomerAddressId.setCellValueFactory(new PropertyValueFactory<>("addressId"));
+        tcCustomerAddressId.setCellValueFactory(new PropertyValueFactory<>("textAddress"));
+
+        tcUserId.setCellValueFactory(new PropertyValueFactory<>("userId"));
+        tcUserName.setCellValueFactory(new PropertyValueFactory<>("userName"));
 
             populateTable();
             populateCustomerTable();
+            populateUserTable();
             System.out.println("PLKJSDF");
     }
 
     public void deselectRadioButton(){
-//        rbAll.setSelected(false);
+        rbAll.setSelected(false);
         rbMonthly.setSelected(false);
         rbWeekly.setSelected(false);
+
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("LOCAL: "+now);
+        System.out.println("GMT?: "+LocalDateTime.now(ZoneOffset.UTC));
+
+    }
+
+    public void filterWeekly(){
+        deselectRadioButton();
+        rbWeekly.setSelected(true);
+        Timestamp now = Timestamp.from(Instant.now());
+        //Instant.now().atZone(ZoneId.of("GMT"));
+        Timestamp nextWeek = Timestamp.valueOf(LocalDateTime.now().plusWeeks(1));
+
+        System.out.println(now);
+        System.out.println(nextWeek);
+
+        //now.toInstant().atZone(ZoneId.of("GMT")).toLocalDate();
+
+        //Lambdas for days
+        //Lambda to just iterate through a collection and add to calendar
+        tvCalendar.getItems().clear();
+        getApointmentsInRange(now,nextWeek).forEach(a -> tvCalendar.getItems().add(a));
+    }
+
+    public void filterMonthly(){
+        deselectRadioButton();
+        rbMonthly.setSelected(true);
+        Timestamp now = Timestamp.from(Instant.now());
+        //Instant.now().atZone(ZoneId.of("GMT"));
+        Timestamp nextWeek = Timestamp.valueOf(LocalDateTime.now().plusMonths(1));
+
+        System.out.println(now);
+        System.out.println(nextWeek);
+
+        //now.toInstant().atZone(ZoneId.of("GMT")).toLocalDate();
+
+        //Lambda to just iterate through a collection and add to calendar
+        tvCalendar.getItems().clear();
+        getApointmentsInRange(now,nextWeek).forEach(a -> tvCalendar.getItems().add(a));
+    }
+
+    public void filterAll(){
+        deselectRadioButton();
+        rbAll.setSelected(true);
+        populateTable();
+    }
+
+    /**
+     * Remember to use the GMT time for start and end
+     * @param start
+     * @param end
+     * @return
+     */
+   public static ObservableList<Appointment> getApointmentsInRange(Timestamp start, Timestamp end){
+        ObservableList<Appointment> appointments = connectionManager.getallAppointments();
+        //Even more lambdas to filter through collections.
+        return (appointments.filtered(p->(p.getStart().after(start) || p.getStart().equals(start)) && p.getStart().before(end)));
+       //return (appointments.filtered(p->p.getStart().after(start) ));
     }
 
     public void populateTable(){
         //get all entries from appointment table, create object for each.
-        tvCalendar.getItems().clear();
-        try {
-            Connection conn = connectionManager.openConnection();
-            ResultSet rs = connectionManager.sendStatement( "SELECT * FROM appointment");
-            while (rs.next()) {
-                tvCalendar.getItems().add(
-                        new Appointment(
-                                rs.getInt("appointmentId"),
-                                rs.getInt("customerId"),
-                                rs.getInt("userId"),
-                                rs.getString("title"),
-                                rs.getString("description"),
-                                rs.getString("location"),
-                                rs.getString("contact"),
-                                rs.getString("type"),
-                                rs.getString("url"),
-                                rs.getTimestamp("start"),
-                                rs.getTimestamp("end"),
-                                rs.getTimestamp("createDate"),
-                                rs.getString("createdBy"),
-                                rs.getTimestamp("lastUpdate"),
-                                rs.getString("lastUpdateBy")
-                        )
-                );
-            }
-            rs.close();
-            connectionManager.clear();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (tvCalendar.getItems()!=null){
+            tvCalendar.getItems().clear();
         }
+        tvCalendar.setItems(connectionManager.getallAppointments());
+
     }
 
     public void populateCustomerTable(){
@@ -141,6 +189,31 @@ public class controllerCalendar extends controller {
                                 rs.getInt("customerId"),
                                 rs.getString("customerName"),
                                 rs.getInt("addressId"),
+                                rs.getBoolean("active"),
+                                rs.getTimestamp("createDate"),
+                                rs.getString("createdBy"),
+                                rs.getTimestamp("lastUpdate"),
+                                rs.getString("lastUpdateBy")
+                        )
+                );
+            }
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void populateUserTable(){
+        //get all entries from appointment table, create object for each.
+        tvUsers.getItems().clear();
+        try {
+            ResultSet rs = connectionManager.sendStatement( "SELECT * FROM user");
+            while (rs.next()) {
+                tvUsers.getItems().add(
+                        new User(
+                                rs.getInt("userId"),
+                                rs.getString("userName"),
+                                rs.getString("password"),
                                 rs.getBoolean("active"),
                                 rs.getTimestamp("createDate"),
                                 rs.getString("createdBy"),
@@ -171,7 +244,40 @@ public class controllerCalendar extends controller {
         }
     }
 
+    public void createNewUser(){
+        controllerUser.screenState=screenStates.add;
+        showSubSceneCommon("formUser.fxml", screenStates.add,btnApptNew);
+    }
+    public void modifyUser(){
+        Object appt =  tvUsers.getSelectionModel().getSelectedItem();
 
+        if (appt!=null) {
+
+            controllerUser.screenState=screenStates.modify;
+            controllerUser.currentUser= ((User)appt);
+            showSubSceneCommon("formUser.fxml", screenStates.modify, btnApptNew);
+        }
+    }
+    public void deleteUser(){
+        Object appt =  tvUsers.getSelectionModel().getSelectedItem();
+
+        System.out.println("Deleting...");
+
+        if (appt!=null){
+            try{
+                connectionManager.deleteUser(((User)appt).getUserId());
+                populateUserTable();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public void logout(){
+        showSubSceneCommon("formLogin.fxml", screenStates.add,btnApptNew);
+    }
 
     public void createNewAppointment(){
         controllerAppointment.screenState=screenStates.add;
